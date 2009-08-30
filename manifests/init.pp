@@ -1,15 +1,15 @@
-define sourceinstall($module, $package, $version, $flags, $bin) {
+define sourceinstall($package, $version, $tarball, $flags, $bin) {
 
 	file { "/opt/$package-$version.tar.bz2":
 		before => Exec["extract-$package-$version"],
-		source => "puppet://$servername/$module/$package-$version.tar.bz2",
+		source => "$tarball",
 		ensure => present,
 	}
 	exec { "extract-$package-$version":
 		require => File["/opt/$package-$version.tar.bz2"],
 		before => Exec["configure-$package-$version"],
 		cwd => "/root",
-		command => "tar xjf /opt/$package-$version.tar.bz2",
+		command => "tar xf /opt/$package-$version.tar.bz2",
 		creates => "/root/$package-$version",
 		unless => "test -d /opt/$package-$version",
 	}
