@@ -1,4 +1,9 @@
+class sourceinstall::build {
+	package { "build-essential": ensure => present }
+}
+
 define sourceinstall($package, $version, $tarball, $flags, $bin) {
+	include sourceinstall::build
 
 	file { "/opt/$package-$version.tar.bz2":
 		before => Exec["extract-$package-$version"],
@@ -15,7 +20,10 @@ define sourceinstall($package, $version, $tarball, $flags, $bin) {
 	}
 
 	exec { "configure-$package-$version":
-		require => Exec["extract-$package-$version"],
+		require => [
+			Package["build-essential"],
+			Exec["extract-$package-$version"]
+		],
 		before => Exec["make-$package-$version"],
 		cwd => "/root/$package-$version",
 		command => "./configure --prefix=/opt/$package-$version $flags",
@@ -24,7 +32,10 @@ define sourceinstall($package, $version, $tarball, $flags, $bin) {
 		onlyif => "test -d /root/$package-$version",
 	}
 	exec { "make-$package-$version":
-		require => Exec["configure-$package-$version"],
+		require => [
+			Package["build-essential"],
+			Exec["configure-$package-$version"]
+		],
 		before => Exec["install-$package-$version"],
 		cwd => "/root/$package-$version",
 		command => "make",
@@ -33,7 +44,10 @@ define sourceinstall($package, $version, $tarball, $flags, $bin) {
 		onlyif => "test -d /root/$package-$version",
 	}
 	exec { "install-$package-$version":
-		require => Exec["make-$package-$version"],
+		require => [
+			Package["build-essential"],
+			Exec["make-$package-$version"]
+		],
 		before => Exec["remove-$package-$version"],
 		cwd => "/root/$package-$version",
 		command => "make install",
