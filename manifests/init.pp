@@ -5,16 +5,14 @@ class sourceinstall::build {
 define sourceinstall($package, $version, $tarball, $flags, $bin) {
 	include sourceinstall::build
 
-	file { "/opt/$package-$version.tar.bz2":
-		before => Exec["extract-$package-$version"],
+	file { "/root/$package-$version.tar.bz2":
 		source => "$tarball",
 		ensure => present,
 	}
 	exec { "extract-$package-$version":
-		require => File["/opt/$package-$version.tar.bz2"],
-		before => Exec["configure-$package-$version"],
+		require => File["/root/$package-$version.tar.bz2"],
 		cwd => "/root",
-		command => "tar xf /opt/$package-$version.tar.bz2",
+		command => "tar xf /root/$package-$version.tar.bz2",
 		creates => "/root/$package-$version",
 		unless => "test -d /opt/$package-$version",
 	}
@@ -24,7 +22,6 @@ define sourceinstall($package, $version, $tarball, $flags, $bin) {
 			Package["build-essential"],
 			Exec["extract-$package-$version"]
 		],
-		before => Exec["make-$package-$version"],
 		cwd => "/root/$package-$version",
 		command => "./configure --prefix=/opt/$package-$version $flags",
 		timeout => "-1",
@@ -36,7 +33,6 @@ define sourceinstall($package, $version, $tarball, $flags, $bin) {
 			Package["build-essential"],
 			Exec["configure-$package-$version"]
 		],
-		before => Exec["install-$package-$version"],
 		cwd => "/root/$package-$version",
 		command => "make",
 		timeout => "-1",
@@ -48,7 +44,6 @@ define sourceinstall($package, $version, $tarball, $flags, $bin) {
 			Package["build-essential"],
 			Exec["make-$package-$version"]
 		],
-		before => Exec["remove-$package-$version"],
 		cwd => "/root/$package-$version",
 		command => "make install",
 		creates => "/opt/$package-$version",
@@ -56,9 +51,12 @@ define sourceinstall($package, $version, $tarball, $flags, $bin) {
 	}
 
 	exec { "remove-$package-$version":
-		cwd => "/root",
-		command => "rm -rf $package-$version",
-		onlyif => "test -d /root/$package-$version",
+		require => Exec["install-$package-$version"],
+		command => "rm -rf /root/$package-$version",
+	}
+	exec { "remove-tar-$package-$version":
+		require => Exec["install-$package-$version"],
+		command => "rm -f /root/$package-$version.tar.bz2",
 	}
 
 }
