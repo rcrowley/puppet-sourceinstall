@@ -52,11 +52,7 @@ define sourceinstall($package, $version, $tarball, $flags, $bin) {
 
 	exec { "remove-$package-$version":
 		require => Exec["install-$package-$version"],
-		command => "rm -rf /root/$package-$version",
-	}
-	exec { "remove-tar-$package-$version":
-		require => Exec["install-$package-$version"],
-		command => "rm -f /root/$package-$version.tar.bz2",
+		command => "rm -rf /root/$package-$version*",
 	}
 
 }
