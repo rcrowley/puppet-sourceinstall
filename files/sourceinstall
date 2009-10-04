@@ -1,0 +1,30 @@
+#!/bin/sh
+
+usage() {
+	echo "Usage: $(basename $0) <tarball-uri> <prefix> [<flags>][...]" >&2
+	exit 1
+}
+[ -n "$1" ] && [ -n "$2" ] || usage
+
+[ -f "$PREFIX/.sourceinstall" ] && exit 0
+
+TARBALL=$1
+if echo $TARBALL | egrep bz2$; then
+	TARFLAG=j
+else
+	TARFLAG=z
+fi
+PREFIX=$2
+FLAGS=$(echo $* | cut -d ' ' -f 3-)
+
+mkdir /tmp/sourceinstall-$$
+cd /tmp/sourceinstall-$$
+wget -O - $TARBALL | tar x$TARFLAG
+cd *
+./configure $FLAGS --prefix=$PREFIX
+make
+make install
+cd /tmp
+rm -rf /tmp/sourceinstall-$$
+
+touch $PREFIX/.sourceinstall
