@@ -6,16 +6,16 @@ usage() {
 }
 [ -n "$1" ] && [ -n "$2" ] || usage
 
-[ -f "$PREFIX/.sourceinstall" ] && exit 0
-
 TARBALL=$1
-if echo $TARBALL | egrep bz2$; then
+if echo $TARBALL | egrep \\.bz2; then
 	TARFLAG=j
 else
 	TARFLAG=z
 fi
 PREFIX=$2
 FLAGS=$(echo $* | cut -d ' ' -f 3-)
+
+[ -f "$PREFIX/.sourceinstall" ] && exit 0
 
 mkdir /tmp/sourceinstall-$$
 cd /tmp/sourceinstall-$$
