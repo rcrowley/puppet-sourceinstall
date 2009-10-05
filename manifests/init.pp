@@ -8,7 +8,7 @@ class sourceinstall::build {
 
 define sourceinstall($tarball, $prefix, $flags) {
 	include sourceinstall::build
-	exec { "/usr/local/bin/sourceinstall $tarball $prefix $flags >>/tmp/sourceinstall.out 2>>/tmp/sourceinstall.err":
+	exec { "/usr/local/bin/sourceinstall $tarball $prefix $flags >/dev/null 2>/dev/null":
 		require => [
 			Package["build-essential"],
 			File["/usr/local/bin/sourceinstall"]
