@@ -14,5 +14,6 @@ define sourceinstall($tarball, $prefix, $flags) {
 			File["/usr/local/bin/sourceinstall"]
 		],
 		timeout => "-1",
+		creates => "$prefix/.sourceinstall",
 	}
 }
