@@ -4,6 +4,15 @@ class sourceinstall::build {
 		source => "puppet://$servername/sourceinstall/sourceinstall",
 		ensure => present,
 	}
+
+	# These really don't belong here but they're shared
+	# by Ruby, Python and PHP
+	package {
+		"zlib1g-dev": ensure => latest;
+		"libssl-dev": ensure => latest;
+		"libreadline5-dev": ensure => latest;
+	}
+
 }
 
 define sourceinstall($tarball, $prefix, $flags) {
