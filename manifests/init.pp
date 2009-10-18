@@ -1,6 +1,6 @@
 class sourceinstall::build {
-	package { "build-essential": ensure => present }
-	file { "/usr/local/bin/sourceinstall":
+	package { "build-essential": ensure => latest }
+	file { "/usr/local/sbin/sourceinstall":
 		source => "puppet://$servername/sourceinstall/sourceinstall",
 		ensure => present,
 	}
@@ -15,12 +15,15 @@ class sourceinstall::build {
 
 }
 
-define sourceinstall($tarball, $prefix, $flags) {
+define sourceinstall($tarball, $prefix, $flags, $bootstrap = "") {
 	include sourceinstall::build
-	exec { "/usr/local/bin/sourceinstall $tarball $prefix $flags >/dev/null 2>/dev/null":
+	exec { "/usr/local/sbin/sourceinstall $tarball $prefix $flags -- $bootstrap >>/tmp/sourceinstall.out 2>>/tmp/sourceinstall.err":
 		require => [
 			Package["build-essential"],
-			File["/usr/local/bin/sourceinstall"]
+			File["/usr/local/sbin/sourceinstall"],
+			Package["libssl-dev"],
+			Package["libreadline5-dev"],
+			Package["zlib1g-dev"]
 		],
 		timeout => "-1",
 		creates => "$prefix/.sourceinstall",
