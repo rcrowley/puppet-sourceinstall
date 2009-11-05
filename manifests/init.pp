@@ -13,6 +13,12 @@ class sourceinstall::build {
 		"libreadline5-dev": ensure => latest;
 	}
 
+	# These really don't belong here but they're necessary
+	# for doing proper dev work
+	package {
+		"strace": ensure => latest;
+	}
+
 }
 
 define sourceinstall($tarball, $prefix, $flags, $bootstrap = "") {
